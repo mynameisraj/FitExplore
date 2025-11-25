@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		350962A42ED54413002A98DC /* FITSwiftSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 350962A32ED54413002A98DC /* FITSwiftSDK */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		351278312ED5331A005FA284 /* FitExplore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitExplore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -46,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				350962A42ED54413002A98DC /* FITSwiftSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +97,7 @@
 			);
 			name = FitExplore;
 			packageProductDependencies = (
+				350962A32ED54413002A98DC /* FITSwiftSDK */,
 			);
 			productName = FitExplore;
 			productReference = 351278312ED5331A005FA284 /* FitExplore.app */;
@@ -121,6 +127,9 @@
 			);
 			mainGroup = 351278282ED5331A005FA284;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				350962A22ED54413002A98DC /* XCRemoteSwiftPackageReference "fit-swift-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 351278322ED5331A005FA284 /* Products */;
 			projectDirPath = "";
@@ -208,6 +217,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		350962A22ED54413002A98DC /* XCRemoteSwiftPackageReference "fit-swift-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/garmin/fit-swift-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 21.187.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		350962A32ED54413002A98DC /* FITSwiftSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 350962A22ED54413002A98DC /* XCRemoteSwiftPackageReference "fit-swift-sdk" */;
+			productName = FITSwiftSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 351278292ED5331A005FA284 /* Project object */;
 }
