@@ -157,6 +157,7 @@
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
 			baseConfigurationReferenceRelativePath = Debug.xcconfig;
 			buildSettings = {
+				INFOPLIST_KEY_NSHumanReadableCopyright = "\"Copyright (c) 2025 Raj Ramamurthy.\"";
 			};
 			name = Debug;
 		};
@@ -165,6 +166,7 @@
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
 			baseConfigurationReferenceRelativePath = Release.xcconfig;
 			buildSettings = {
+				INFOPLIST_KEY_NSHumanReadableCopyright = "\"Copyright (c) 2025 Raj Ramamurthy.\"";
 			};
 			name = Release;
 		};
