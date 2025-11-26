@@ -1,0 +1,34 @@
+# .editorconfig
+# Place this file in the root of your Swift project
+
+root = true
+
+# Applies to all files
+[*]
+# macOS / Unix line endings (recommended for open-source Swift projects)
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Swift source files
+[*.swift]
+indent_style = space
+indent_size = 2
+max_line_length = 80
+tab_width = 2
+
+# Optional: Xcode project files (usually left alone, but good to be explicit)
+[{Package.swift,*.pbxproj}]
+indent_style = unset
+indent_size = unset
+
+# Markdown files in the project (README, docs, etc.)
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 100
+
+# Configuration files
+[{.gitattributes,.gitignore,.swiftformat,.swiftlint.yml}]
+indent_style = space
+indent_size = 2
