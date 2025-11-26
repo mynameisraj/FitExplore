@@ -29,5 +29,5 @@ struct FitExploreDocument: FileDocument {
 }
 
 extension UTType {
-  nonisolated static let fitFile = UTType(importedAs: "com.rajramamurthy.fit")
+  nonisolated static let fitFile = UTType(importedAs: "com.garmin.fit")
 }
