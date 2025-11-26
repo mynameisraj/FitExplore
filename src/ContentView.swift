@@ -1,9 +1,4 @@
-//
-//  ContentView.swift
-//  FitExplore
-//
-//  Created by Raj Ramamurthy on 11/24/25.
-//
+// Copyright © 2025 Raj Ramamurthy.
 
 import SwiftUI
 
