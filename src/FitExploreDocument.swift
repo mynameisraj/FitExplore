@@ -1,29 +1,30 @@
 // Copyright © 2025 Raj Ramamurthy.
 
+import FITSwiftSDK
 import SwiftUI
+import Synchronization
 import UniformTypeIdentifiers
 
-nonisolated struct FitExploreDocument: FileDocument {
-  var text: String
-  
-  init(text: String = "Hello, world!") {
-    self.text = text
-  }
-  
+struct FitExploreDocument: FileDocument {
   static let readableContentTypes: [UTType] = [.fitFile]
-  
+
+  @UncheckedSendable var fitListener: FitListener
+
   init(configuration: ReadConfiguration) throws {
-    guard let data = configuration.file.regularFileContents,
-          let string = String(data: data, encoding: .utf8)
-    else {
+    guard let data = configuration.file.regularFileContents else {
       throw CocoaError(.fileReadCorruptFile)
     }
-    text = string
+    let stream = FITSwiftSDK.InputStream(data: data)
+    let decoder = Decoder(stream: stream)
+    let listener = FitListener()
+    decoder.addMesgListener(listener)
+    try decoder.read()
+
+    self.fitListener = listener
   }
-  
+
   func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-    let data = text.data(using: .utf8)!
-    return .init(regularFileWithContents: data)
+    fatalError("Unsupported")
   }
 }
 

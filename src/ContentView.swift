@@ -6,10 +6,6 @@ struct ContentView: View {
   @Binding var document: FitExploreDocument
   
   var body: some View {
-    TextEditor(text: $document.text)
+    Text("Hello world!")
   }
-}
-
-#Preview {
-  ContentView(document: .constant(FitExploreDocument()))
 }
