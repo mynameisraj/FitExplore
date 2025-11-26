@@ -4,8 +4,8 @@ import SwiftUI
 
 struct ContentView: View {
   @Binding var document: FitExploreDocument
-  
+
   var body: some View {
-    Text("Hello world!")
+    RouteMapView(coordinates: document.coordinates)
   }
 }

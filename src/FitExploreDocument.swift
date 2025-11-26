@@ -1,31 +1,27 @@
 // Copyright © 2025 Raj Ramamurthy.
 
-import FITSwiftSDK
+import CoreLocation
 import SwiftUI
-import Synchronization
 import UniformTypeIdentifiers
 
+/// Encapsulates a FIT file.
 struct FitExploreDocument: FileDocument {
   static let readableContentTypes: [UTType] = [.fitFile]
 
-  @UncheckedSendable var fitListener: FitListener
+  private let model: DocumentModel
 
   init(configuration: ReadConfiguration) throws {
     guard let data = configuration.file.regularFileContents else {
       throw CocoaError(.fileReadCorruptFile)
     }
-    let stream = FITSwiftSDK.InputStream(data: data)
-    let decoder = Decoder(stream: stream)
-    let listener = FitListener()
-    decoder.addMesgListener(listener)
-    try decoder.read()
-
-    self.fitListener = listener
+    self.model = try .init(data: data)
   }
 
   func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
     fatalError("Unsupported")
   }
+
+  var coordinates: [CLLocationCoordinate2D] { model.coordinates }
 }
 
 extension UTType {

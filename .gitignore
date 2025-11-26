@@ -1,1 +1,2 @@
 config/Overrides.xcconfig
+.claude/settings.local.json
