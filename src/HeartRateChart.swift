@@ -14,6 +14,11 @@ struct HeartRateChart: View {
 
   var body: some View {
     VStack {
+      // Chart title
+      Text("Heart rate")
+        .font(.headline)
+        .padding(.top)
+
       // Mode toggle
       Picker("X-Axis", selection: $xAxisMode) {
         Text("Time").tag(XAxisMode.time)
@@ -21,10 +26,30 @@ struct HeartRateChart: View {
       }
       .pickerStyle(.segmented)
       .frame(maxWidth: 200)
-      .padding()
+      .padding(.bottom)
 
       // Chart
       Chart {
+        // Grey shading for gaps between runs (stopped periods)
+        let runs = document.heartRateData
+        ForEach(0..<runs.count-1, id: \.self) { index in
+          if let endOfRun = runs[index].last,
+            let startOfNext = runs[index + 1].first
+          {
+            let xStart = xAxisMode == .time
+              ? Double(endOfRun.timestamp) : endOfRun.distance
+            let xEnd = xAxisMode == .time
+              ? Double(startOfNext.timestamp) : startOfNext.distance
+            RectangleMark(
+              xStart: .value("Start", xStart),
+              xEnd: .value("End", xEnd),
+              yStart: .value("Min", 70),
+              yEnd: .value("Max", 200) )
+            .foregroundStyle(.gray.opacity(0.2))
+          }
+        }
+
+        // Heart rate lines
         ForEach(
           document.heartRateData.enumerated(), id: \.offset
         ) { series, run in
@@ -45,7 +70,6 @@ struct HeartRateChart: View {
             ? .stride(by: 600)  // 10 minutes in seconds
             : .stride(by: Constants.metersPerMile)
         ) { value in
-          AxisGridLine()
           AxisValueLabel(orientation: .vertical) {
             let value = value.as(Double.self)!
             if xAxisMode == .time {
@@ -67,6 +91,7 @@ struct HeartRateChart: View {
         }
       }
       .chartYScale(domain: 70...200)
+      .chartYAxisLabel("BPM")
       .padding()
     }
   }
