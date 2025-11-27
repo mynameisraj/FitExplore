@@ -8,6 +8,13 @@ struct Split: Identifiable {
   enum Distance: Equatable, Comparable {
     case whole(Int)
     case partial(Double)
+
+    var isWhole: Bool {
+      switch self {
+      case .whole: return true
+      case .partial: return false
+      }
+    }
   }
 
   var id: Int

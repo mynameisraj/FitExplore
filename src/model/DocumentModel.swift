@@ -41,11 +41,12 @@ final class DocumentModel {
     return _splits!
   }
 
-  // FIXME: there's a significant bug here. If we paused, we count that against
-  // the split distance. The split should only include moving time.
   private func makeSplits() -> [Split] {
-    let records = fitListener.fitMessages.recordMesgs
-    guard !records.isEmpty else { return [] }
+    let allRecords = fitListener.fitMessages.recordMesgs
+    guard !allRecords.isEmpty else { return [] }
+
+    // Filter out records when timer was stopped
+    let records = filterActiveRecords(allRecords)
 
     var splits: [Split] = []
     var currentMile = 1
@@ -96,6 +97,54 @@ final class DocumentModel {
     }
 
     return splits
+  }
+
+  /// Builds time ranges when the timer was active (not stopped).
+  private func buildActiveTimeRanges() -> [(start: UInt32, end: UInt32)] {
+    let events = fitListener.fitMessages.eventMesgs
+    var ranges: [(start: UInt32, end: UInt32)] = []
+    var currentStart: UInt32?
+
+    for event in events {
+      guard event.getEvent() == .timer,
+        let timestamp = event.getTimestamp(),
+        let eventType = event.getEventType()
+      else {
+        continue
+      }
+
+      if eventType == .start {
+        currentStart = timestamp.timestamp
+      } else if eventType == .stop, let start = currentStart {
+        ranges.append((start: start, end: timestamp.timestamp))
+        currentStart = nil
+      }
+    }
+
+    // If timer still running at end, add final range
+    if let start = currentStart,
+      let lastRecord = fitListener.fitMessages.recordMesgs.last,
+      let lastTimestamp = lastRecord.getTimestamp()
+    {
+      ranges.append((start: start, end: lastTimestamp.timestamp))
+    }
+
+    return ranges
+  }
+
+  /// Filters records to only include those when timer was active.
+  private func filterActiveRecords(_ records: [RecordMesg]) -> [RecordMesg] {
+    let activeRanges = buildActiveTimeRanges()
+
+    // If no timer events found, assume all records are active
+    guard !activeRanges.isEmpty else { return records }
+
+    return records.filter { record in
+      guard let timestamp = record.getTimestamp() else { return false }
+      return activeRanges.contains { range in
+        timestamp.timestamp >= range.start && timestamp.timestamp <= range.end
+      }
+    }
   }
 }
 

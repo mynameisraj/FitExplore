@@ -10,8 +10,19 @@
 		350962A42ED54413002A98DC /* FITSwiftSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 350962A32ED54413002A98DC /* FITSwiftSDK */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		35B31E162ED801CC000620E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 351278292ED5331A005FA284 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 351278302ED5331A005FA284;
+			remoteInfo = FitExplore;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		351278312ED5331A005FA284 /* FitExplore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitExplore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35B31E122ED801CC000620E6 /* FitExploreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitExploreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,6 +54,11 @@
 			path = other;
 			sourceTree = "<group>";
 		};
+		35B31E132ED801CC000620E6 /* tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,15 +70,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		35B31E0F2ED801CC000620E6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		351278282ED5331A005FA284 = {
 			isa = PBXGroup;
 			children = (
+				351278332ED5331A005FA284 /* src */,
 				352AC3892ED5345100D1B59D /* other */,
 				352AC3882ED5343600D1B59D /* config */,
-				351278332ED5331A005FA284 /* src */,
+				35B31E132ED801CC000620E6 /* tests */,
 				351278322ED5331A005FA284 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -71,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				351278312ED5331A005FA284 /* FitExplore.app */,
+				35B31E122ED801CC000620E6 /* FitExploreTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,6 +128,29 @@
 			productReference = 351278312ED5331A005FA284 /* FitExplore.app */;
 			productType = "com.apple.product-type.application";
 		};
+		35B31E112ED801CC000620E6 /* FitExploreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 35B31E182ED801CC000620E6 /* Build configuration list for PBXNativeTarget "FitExploreTests" */;
+			buildPhases = (
+				35B31E0E2ED801CC000620E6 /* Sources */,
+				35B31E0F2ED801CC000620E6 /* Frameworks */,
+				35B31E102ED801CC000620E6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				35B31E172ED801CC000620E6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				35B31E132ED801CC000620E6 /* tests */,
+			);
+			name = FitExploreTests;
+			packageProductDependencies = (
+			);
+			productName = FitExploreTests;
+			productReference = 35B31E122ED801CC000620E6 /* FitExploreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -116,6 +164,10 @@
 				TargetAttributes = {
 					351278302ED5331A005FA284 = {
 						CreatedOnToolsVersion = 26.1.1;
+					};
+					35B31E112ED801CC000620E6 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 351278302ED5331A005FA284;
 					};
 				};
 			};
@@ -137,12 +189,20 @@
 			projectRoot = "";
 			targets = (
 				351278302ED5331A005FA284 /* FitExplore */,
+				35B31E112ED801CC000620E6 /* FitExploreTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3512782F2ED5331A005FA284 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		35B31E102ED801CC000620E6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -159,13 +219,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		35B31E0E2ED801CC000620E6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		35B31E172ED801CC000620E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 351278302ED5331A005FA284 /* FitExplore */;
+			targetProxy = 35B31E162ED801CC000620E6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3512783F2ED5331B005FA284 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
-			baseConfigurationReferenceRelativePath = Debug.xcconfig;
+			baseConfigurationReferenceRelativePath = App.xcconfig;
 			buildSettings = {
 				INFOPLIST_KEY_NSHumanReadableCopyright = "\"Copyright (c) 2025 Raj Ramamurthy.\"";
 			};
@@ -174,7 +249,7 @@
 		351278402ED5331B005FA284 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
-			baseConfigurationReferenceRelativePath = Release.xcconfig;
+			baseConfigurationReferenceRelativePath = App.xcconfig;
 			buildSettings = {
 				INFOPLIST_KEY_NSHumanReadableCopyright = "\"Copyright (c) 2025 Raj Ramamurthy.\"";
 			};
@@ -183,15 +258,31 @@
 		351278412ED5331B005FA284 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
-			baseConfigurationReferenceRelativePath = Base.xcconfig;
+			baseConfigurationReferenceRelativePath = Debug.xcconfig;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 6L5H4ZV25V;
 			};
 			name = Debug;
 		};
 		351278422ED5331B005FA284 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
-			baseConfigurationReferenceRelativePath = Base.xcconfig;
+			baseConfigurationReferenceRelativePath = Release.xcconfig;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 6L5H4ZV25V;
+			};
+			name = Release;
+		};
+		35B31E192ED801CC000620E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 352AC3882ED5343600D1B59D /* config */;
+			baseConfigurationReferenceRelativePath = Tests.xcconfig;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		35B31E1A2ED801CC000620E6 /* Release */ = {
+			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
 			name = Release;
@@ -213,6 +304,15 @@
 			buildConfigurations = (
 				3512783F2ED5331B005FA284 /* Debug */,
 				351278402ED5331B005FA284 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		35B31E182ED801CC000620E6 /* Build configuration list for PBXNativeTarget "FitExploreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35B31E192ED801CC000620E6 /* Debug */,
+				35B31E1A2ED801CC000620E6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,0 +1,5 @@
+// Copyright © 2025 Raj Ramamurthy.
+
+PRODUCT_BUNDLE_IDENTIFIER = com.rajramamurthy.FitExplore
+CODE_SIGN_ENTITLEMENTS = other/FitExplore.entitlements
+INFOPLIST_FILE = other/Info.plist
