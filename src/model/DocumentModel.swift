@@ -10,6 +10,7 @@ final class DocumentModel {
   private var _coordinates: [CLLocationCoordinate2D]?
   private var _splits: [Split]?
   private var _stoppedTimeRanges: [Range<UInt32>]?
+  private var startTime: DateTime?
 
   init(data: Data) throws {
     let stream = FITSwiftSDK.InputStream(data: data)
@@ -47,6 +48,35 @@ final class DocumentModel {
       _splits = makeSplits()
     }
     return _splits!
+  }
+
+  var heartRateData: [HeartRateDataPoint] {
+    let stoppedRanges = self.stoppedTimeRanges
+    guard let startTime else {
+      assertionFailure("Missing start time")
+      return []
+    }
+
+    // Collect all data points
+    let allPoints: [HeartRateDataPoint] =
+      fitListener.fitMessages.recordMesgs.compactMap { record in
+        guard let hr = record.getHeartRate(),
+          let timestamp = record.getTimestamp(),
+          let distance = record.getDistance()
+        else {
+          return nil
+        }
+
+        let isStopped = stoppedRanges.contains { range in
+          range.contains(timestamp.timestamp)
+        }
+
+        return HeartRateDataPoint(
+          timestamp: timestamp.timestamp - startTime.timestamp,
+          distance: distance, heartRate: hr, isStopped: isStopped)
+      }
+
+    return allPoints
   }
 
   private func makeSplits() -> [Split] {
@@ -137,6 +167,8 @@ final class DocumentModel {
         let r = stop..<timestamp.timestamp
         if !r.isEmpty { ranges.append(r) }
         lastStopTime = nil
+
+        if self.startTime == nil { self.startTime = timestamp }
       }
     }
 

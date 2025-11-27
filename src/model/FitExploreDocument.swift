@@ -23,6 +23,7 @@ struct FitExploreDocument: FileDocument {
 
   var coordinates: [CLLocationCoordinate2D] { model.coordinates }
   var splits: [Split] { model.splits }
+  var heartRateData: [HeartRateDataPoint] { model.heartRateData }
 }
 
 extension UTType {
