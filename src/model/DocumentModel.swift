@@ -50,7 +50,7 @@ final class DocumentModel {
     return _splits!
   }
 
-  var heartRateData: [HeartRateDataPoint] {
+  var heartRateData: [[HeartRateDataPoint]] {
     let stoppedRanges = self.stoppedTimeRanges
     guard let startTime else {
       assertionFailure("Missing start time")
@@ -58,25 +58,44 @@ final class DocumentModel {
     }
 
     // Collect all data points
-    let allPoints: [HeartRateDataPoint] =
-      fitListener.fitMessages.recordMesgs.compactMap { record in
-        guard let hr = record.getHeartRate(),
-          let timestamp = record.getTimestamp(),
-          let distance = record.getDistance()
-        else {
-          return nil
-        }
+    var allBuckets: [[HeartRateDataPoint]] = []
+    var currentBucket: [HeartRateDataPoint] = []
 
-        let isStopped = stoppedRanges.contains { range in
-          range.contains(timestamp.timestamp)
+    func rangeIndex(_ timestamp: UInt32) -> Int {
+      for (i, range) in stoppedRanges.enumerated() {
+        if range.lowerBound > timestamp {
+          return i
+        } else if range.upperBound > timestamp {
+          return i &+ 1
         }
-
-        return HeartRateDataPoint(
-          timestamp: timestamp.timestamp - startTime.timestamp,
-          distance: distance, heartRate: hr, isStopped: isStopped)
       }
+      return stoppedRanges.count
+    }
 
-    return allPoints
+    var lastRangeIndex = 0
+    for record in fitListener.fitMessages.recordMesgs {
+      guard let hr = record.getHeartRate(),
+        let timestamp = record.getTimestamp(),
+        let distance = record.getDistance()
+      else { continue }
+
+      let currRangeIndex = rangeIndex(timestamp.timestamp)
+      defer { lastRangeIndex = currRangeIndex }
+
+      let point = HeartRateDataPoint(
+        timestamp: timestamp.timestamp - startTime.timestamp,
+        distance: distance, heartRate: hr, isStopped: false)
+      if lastRangeIndex != currRangeIndex {
+        // Start new bucket.
+        allBuckets.append(currentBucket)
+        currentBucket = [point]
+      } else {
+        currentBucket.append(point)
+      }
+    }
+    allBuckets.append(currentBucket)
+
+    return allBuckets
   }
 
   private func makeSplits() -> [Split] {

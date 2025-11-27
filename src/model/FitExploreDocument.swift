@@ -21,9 +21,15 @@ struct FitExploreDocument: FileDocument {
     fatalError("Unsupported")
   }
 
+  /// All coordinates for records in the given file.
   var coordinates: [CLLocationCoordinate2D] { model.coordinates }
+
+  /// Mile-by-mile splits.
   var splits: [Split] { model.splits }
-  var heartRateData: [HeartRateDataPoint] { model.heartRateData }
+
+  /// Heart rate data bucketed by whether the timer was stopped. Starting or
+  /// stopping the timer forms a new bucket.
+  var heartRateData: [[HeartRateDataPoint]] { model.heartRateData }
 }
 
 extension UTType {

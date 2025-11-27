@@ -10,7 +10,6 @@ struct HeartRateChart: View {
   }
 
   var document: FitExploreDocument
-  private var data: [HeartRateDataPoint] { document.heartRateData }
   @State private var xAxisMode: XAxisMode = .distance
 
   var body: some View {
@@ -25,17 +24,20 @@ struct HeartRateChart: View {
       .padding()
 
       // Chart
-      Chart(data) { point in
-        LineMark(
-          x: .value(
-            xAxisMode == .time ? "Time" : "Distance",
-            xAxisMode == .time
-              ? Double(point.timestamp) : point.distance
-          ),
-          y: .value("Heart Rate", point.heartRate)
-        )
-        .interpolationMethod(.catmullRom)
-        .foregroundStyle(point.isStopped ? .gray : .red)
+      Chart {
+        ForEach(
+          document.heartRateData.enumerated(), id: \.offset
+        ) { series, run in
+          ForEach(run) { point in
+            LineMark(
+              x: .value(
+                xAxisMode == .time ? "Time" : "Distance",
+                xAxisMode == .time ? Double(point.timestamp) : point.distance),
+              y: .value("Heart Rate", point.heartRate),
+              series: .value("Bucket", series))
+            .foregroundStyle(.red)
+          }
+        }
       }
       .chartXAxis {
         AxisMarks(
