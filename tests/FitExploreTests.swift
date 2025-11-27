@@ -51,7 +51,19 @@ struct FitExploreTests {
       #expect(p > 0.13 && p < 0.14)
     }
 
-    // FIXME: mile splits are wrong, figure out why.
+    // Verify data manually.
+    let expectedPaces = [
+      512, 512, 518, 507, 491, 487, 487, 472, 451
+    ]
+    let expectedHeartRates = [
+      151, 150, 148, 151, 152, 156, 161, 158, 180
+    ]
+    let expectedVert = [41, 13, 2, -31, -20, -21, 22, -19, -5]
+    for i in splits.indices {
+      #expect(Int(splits[i].paceSecondsPerMile!) == expectedPaces[i])
+      #expect(splits[i].avgHeartRate! == expectedHeartRates[i])
+      #expect(splits[i].elevationChange! == expectedVert[i])
+    }
   }
 }
 

@@ -37,32 +37,34 @@ struct Split: Identifiable {
 
 extension Split {
   init(
-    splitNumber: Int, records: [RecordMesg], startIndex: Int, endIndex: Int,
-    startAltitude: Double?
+    splitNumber: Int, records: borrowing [RecordMesg],
+    startIndex: Int, endIndex: Int, startAltitude: Double?, stoppedTime: UInt32
   ) {
-    self.init(splitNumber: splitNumber, distance: .whole(splitNumber),
+    self.init(
+      splitNumber: splitNumber, distance: .whole(splitNumber),
       records: records, startIndex: startIndex, endIndex: endIndex,
-      startAltitude: startAltitude)
+      startAltitude: startAltitude, stoppedTime: stoppedTime)
   }
 
   init(
     splitNumber: Int, partialDistance: Double,
-    records: [RecordMesg], startIndex: Int, endIndex: Int,
-    startAltitude: Double?
+    records: borrowing [RecordMesg], startIndex: Int, endIndex: Int,
+    startAltitude: Double?, stoppedTime: UInt32
   ) {
-    self.init(splitNumber: splitNumber, distance: .partial(partialDistance),
+    self.init(
+      splitNumber: splitNumber, distance: .partial(partialDistance),
       records: records, startIndex: startIndex, endIndex: endIndex,
-      startAltitude: startAltitude)
+      startAltitude: startAltitude, stoppedTime: stoppedTime)
   }
 
   fileprivate init(
-    splitNumber: Int, distance: Distance, records: [RecordMesg],
-    startIndex: Int, endIndex: Int, startAltitude: Double?
+    splitNumber: Int, distance: Distance, records: borrowing [RecordMesg],
+    startIndex: Int, endIndex: Int, startAltitude: Double?,
+    stoppedTime: UInt32
   ) {
-    // FIXME: check this. Should it ignore end index?
-    let splitRecords = Array(records[startIndex...endIndex])
+    let splitRecords = records[startIndex..<endIndex]
 
-    let pace = Self.pace(records: splitRecords)
+    let pace = Self.pace(records: splitRecords, stoppedTime: stoppedTime)
     let avgHR = Self.averageHeartRate(records: splitRecords)
     let elevationChange = Self.elevationChange(
       records: splitRecords, startAltitude: startAltitude)
@@ -72,20 +74,29 @@ extension Split {
       avgHeartRate: avgHR, elevationChange: elevationChange)
   }
 
-  private static func pace(records: [RecordMesg]) -> Double? {
+  private static func pace(
+    records: borrowing some BidirectionalCollection<RecordMesg>,
+    stoppedTime: UInt32
+  ) -> Double? {
     guard let startTime = records.first?.getTimestamp(),
       let endTime = records.last?.getTimestamp(),
       let startDist = records.first?.getDistance(),
       let endDist = records.last?.getDistance()
     else { return nil }
 
-    let elapsedSeconds = endTime.timestamp - startTime.timestamp
+    let totalElapsedSeconds = endTime.timestamp - startTime.timestamp
+    // Subtract stopped time to get actual moving time
+    let movingSeconds = totalElapsedSeconds - stoppedTime
+
     let distanceMeters = endDist - startDist
     let distanceMiles = distanceMeters / Constants.metersPerMile
-    return distanceMiles <= 0 ? nil : Double(elapsedSeconds) / distanceMiles
+
+    return distanceMiles <= 0 ? nil : Double(movingSeconds) / distanceMiles
   }
 
-  private static func averageHeartRate(records: [RecordMesg]) -> Int? {
+  private static func averageHeartRate(
+    records: borrowing some BidirectionalCollection<RecordMesg>
+  ) -> Int? {
     let heartRates = records.compactMap { $0.getHeartRate() }
     guard !heartRates.isEmpty else { return nil }
 
@@ -94,16 +105,14 @@ extension Split {
   }
 
   private static func elevationChange(
-    records: [RecordMesg], startAltitude: Double?
+    records: borrowing some BidirectionalCollection<RecordMesg>,
+    startAltitude: Double?
   ) -> Int? {
-    guard let start = startAltitude else { return nil }
-    guard let end =
-      records.last?.getAltitude() ?? records.last?.getEnhancedAltitude()
-    else {
-      return nil
-    }
+    guard let startAltitude, let end = records.last else { return nil }
+    guard let endAltitude = end.getAltitude() ?? end.getEnhancedAltitude()
+    else { return nil }
 
-    let changeMeters = end - start
+    let changeMeters = endAltitude - startAltitude
     let changeFeet = changeMeters * Constants.feetPerMeter
 
     return Int(changeFeet.rounded())

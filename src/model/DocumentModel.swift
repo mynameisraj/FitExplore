@@ -9,6 +9,7 @@ final class DocumentModel {
   private let fitListener: FitListener
   private var _coordinates: [CLLocationCoordinate2D]?
   private var _splits: [Split]?
+  private var _stoppedTimeRanges: [Range<UInt32>]?
 
   init(data: Data) throws {
     let stream = FITSwiftSDK.InputStream(data: data)
@@ -34,6 +35,13 @@ final class DocumentModel {
     return _coordinates!
   }
 
+  private var stoppedTimeRanges: [Range<UInt32>] {
+    if _stoppedTimeRanges == nil {
+      _stoppedTimeRanges = makeStoppedTimeRanges()
+    }
+    return _stoppedTimeRanges!
+  }
+
   var splits: [Split] {
     if _splits == nil {
       _splits = makeSplits()
@@ -42,11 +50,10 @@ final class DocumentModel {
   }
 
   private func makeSplits() -> [Split] {
-    let allRecords = fitListener.fitMessages.recordMesgs
-    guard !allRecords.isEmpty else { return [] }
+    let records = fitListener.fitMessages.recordMesgs
+    guard !records.isEmpty else { return [] }
 
-    // Filter out records when timer was stopped
-    let records = filterActiveRecords(allRecords)
+    let stoppedRanges = self.stoppedTimeRanges
 
     var splits: [Split] = []
     var currentMile = 1
@@ -61,11 +68,13 @@ final class DocumentModel {
 
       // Check if we've crossed a mile boundary.
       if distance >= targetDistance {
-        // Compute split statistics.
+        let stoppedTime = calculateStoppedTime(
+          records: records, startIndex: splitStartIndex, endIndex: index,
+          stoppedRanges: stoppedRanges)
         let split = Split(
           splitNumber: currentMile, records: records,
           startIndex: splitStartIndex, endIndex: index,
-          startAltitude: splitStartAltitude)
+          startAltitude: splitStartAltitude, stoppedTime: stoppedTime)
         splits.append(split)
 
         // Prepare for next split.
@@ -84,26 +93,34 @@ final class DocumentModel {
     }
 
     // Handle partial final split.
-    if splitStartIndex < records.count - 1,
+    if splitStartIndex < records.endIndex,
       let endDistance = records.last?.getDistance(), let lastSplitEnd
     {
       let partialDistance =
         (endDistance - lastSplitEnd) / Constants.metersPerMile
+      let stoppedTime = calculateStoppedTime(
+        records: records, startIndex: splitStartIndex,
+        endIndex: records.endIndex, stoppedRanges: stoppedRanges)
+
       let split = Split(
         splitNumber: currentMile, partialDistance: partialDistance,
         records: records, startIndex: splitStartIndex,
-        endIndex: records.count - 1, startAltitude: splitStartAltitude)
+        endIndex: records.endIndex, startAltitude: splitStartAltitude,
+        stoppedTime: stoppedTime)
       splits.append(split)
     }
 
     return splits
   }
 
-  /// Builds time ranges when the timer was active (not stopped).
-  private func buildActiveTimeRanges() -> [(start: UInt32, end: UInt32)] {
+  /// Builds time ranges when the timer was stopped (paused).
+  private func makeStoppedTimeRanges() -> [Range<UInt32>] {
     let events = fitListener.fitMessages.eventMesgs
-    var ranges: [(start: UInt32, end: UInt32)] = []
-    var currentStart: UInt32?
+    var ranges: [Range<UInt32>] = []
+
+    // Assume the workout begins stopped.
+    var lastStopTime: UInt32? =
+      events.lazy.compactMap({ $0.getTimestamp() }).first?.timestamp
 
     for event in events {
       guard event.getEvent() == .timer,
@@ -113,38 +130,46 @@ final class DocumentModel {
         continue
       }
 
-      if eventType == .start {
-        currentStart = timestamp.timestamp
-      } else if eventType == .stop, let start = currentStart {
-        ranges.append((start: start, end: timestamp.timestamp))
-        currentStart = nil
+      if eventType == .stop || eventType == .stopAll {
+        lastStopTime = timestamp.timestamp
+      } else if eventType == .start, let stop = lastStopTime {
+        // Start preceded by a stop, record the range of stopped time.
+        let r = stop..<timestamp.timestamp
+        if !r.isEmpty { ranges.append(r) }
+        lastStopTime = nil
       }
-    }
-
-    // If timer still running at end, add final range
-    if let start = currentStart,
-      let lastRecord = fitListener.fitMessages.recordMesgs.last,
-      let lastTimestamp = lastRecord.getTimestamp()
-    {
-      ranges.append((start: start, end: lastTimestamp.timestamp))
     }
 
     return ranges
   }
 
-  /// Filters records to only include those when timer was active.
-  private func filterActiveRecords(_ records: [RecordMesg]) -> [RecordMesg] {
-    let activeRanges = buildActiveTimeRanges()
+  /// Calculates total stopped time (in seconds) within a split's time range.
+  private func calculateStoppedTime(
+    records: borrowing [RecordMesg], startIndex: Int, endIndex: Int,
+    stoppedRanges: [Range<UInt32>]
+  ) -> UInt32 {
+    guard !stoppedRanges.isEmpty else { return 0 }
+    // Calculate time in the split that was spent stopped.
+    let times = records[startIndex..<endIndex].lazy.compactMap({
+      $0.getTimestamp()
+    })
+    guard let startTime = times.first?.timestamp,
+      let endTime = times.last?.timestamp
+    else {
+      assertionFailure("Missing timestamps?")
+      return 0
+    }
 
-    // If no timer events found, assume all records are active
-    guard !activeRanges.isEmpty else { return records }
-
-    return records.filter { record in
-      guard let timestamp = record.getTimestamp() else { return false }
-      return activeRanges.contains { range in
-        timestamp.timestamp >= range.start && timestamp.timestamp <= range.end
+    var stoppedTime: UInt32 = 0
+    for range in stoppedRanges {
+      // Calculate overlap between stopped range and split range
+      let overlapStart = max(range.lowerBound, startTime)
+      let overlapEnd = min(range.upperBound, endTime)
+      if overlapStart < overlapEnd {
+        stoppedTime += (overlapEnd - overlapStart)
       }
     }
+    return stoppedTime
   }
 }
 
