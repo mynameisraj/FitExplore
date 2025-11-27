@@ -8,5 +8,6 @@ struct FitExploreApp: App {
     DocumentGroup(viewing: FitExploreDocument.self) { file in
       ContentView(document: file.$document)
     }
+    .defaultSize(CGSize(width: 720, height: 450))
   }
 }

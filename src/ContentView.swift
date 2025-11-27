@@ -6,6 +6,13 @@ struct ContentView: View {
   @Binding var document: FitExploreDocument
 
   var body: some View {
-    RouteMapView(coordinates: document.coordinates)
+    NavigationSplitView {
+      SplitsTable(document: document)
+    } detail: {
+      VStack {
+        RouteMap(coordinates: document.coordinates)
+        RouteTimeline(document: $document)
+      }
+    }
   }
 }
